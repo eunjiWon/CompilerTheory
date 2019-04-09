@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-//import java.util.regex.Pattern;
 
 public class SmallJS {
 	ArrayList<String> fileLines;
@@ -13,18 +12,16 @@ public class SmallJS {
 
 	public static void main(String[] args) throws Exception {
 		SmallJS smallJS = new SmallJS();
-		// initialize HashMap 
+		// initialize keywordsMap, delimitersMap, operatorsMap 
 		smallJS.initailizeMap();
 		smallJS.run(args[0]);
 		
 	}
 
 	public void run(String filePath) throws Exception {
-		// read file
+		// read input file
 		fileLines = readFile(filePath);
 		executeDFA();
-//		System.out.println(isWhiteSpace(" "));
-		
 	}
 
 	ArrayList<String> readFile(String path) throws Exception{
@@ -43,14 +40,14 @@ public class SmallJS {
 	
 	void executeDFA() {
 		String line = "";
-		// read each line from file
+		// read each one line from file
 		for(int i = 0; i < fileLines.size(); i++) {
 			line = fileLines.get(i);
 			String ch;
 			if(line.equals("<script_start>") | line.equals("<script_end>"))
 				System.out.println(line + " keyword id");
 			else { 
-				int state = 0; // start state
+				int state = 0; 
 				String temp = "";
 				String delimiter = "";
 				String operator = "";
@@ -73,7 +70,7 @@ public class SmallJS {
 								temp = ch;
 							}
 							else if(isDigit(ch)) {
-								state = 10;
+								state = 5;
 								temp = ch;
 							}
 							else if(isDelimiter(ch)) {
@@ -85,18 +82,18 @@ public class SmallJS {
 								state = 0;
 							}
 							else if(isFirstOp(ch)) {
-								state = 13;
+								state = 6;
 								operator = ch;
 							}
 							else if(ch.equals("\"")) {
-								state = 16;
+								state = 7;
 								temp = ch;
 							}
-							else state = 19;
+							else state = 12; // error state 
 							break;
 						case 1:
 							if(ch.equals("/")) state = 2;
-							else state = 19;
+							else state = 12;
 							temp += ch;
 							break;
 						case 2: 
@@ -122,12 +119,12 @@ public class SmallJS {
 									delimiter = "";
 									state = 0;
 								}
-								else if(isKeyword(temp)) { // keyword id
+								else if(isKeyword(temp)) { // keyword
 									System.out.println(temp + " " + keywordsMap.get(temp));
 									if(!delimitersMap.get(delimiter).equals("null"))
 										System.out.println(delimiter + " " + delimitersMap.get(delimiter));
-									if(isFunctionName(temp)) {
-										state = 7;
+									if(isFunctionName(temp)) { // function name
+										state = 4;
 										temp = "";
 									}
 									else {
@@ -140,14 +137,14 @@ public class SmallJS {
 							else if(isFirstOp(ch)) {
 								operator = ch;
 								System.out.println(temp + " user-defined id");
-								state = 13;
+								state = 6;
 							}
-							else state = 19;
+							else state = 12;
 							break;
-						case 7: 
+						case 4: 
 							if(ch.equals("\"")) {
-								state = 16;
-								temp += ch; // 아마 ( + " 으로 기록될 것임 
+								state = 7;
+								temp += ch; 
 							}
 							else {
 								if(!functionParamterStartFlag) temp = "(";
@@ -160,14 +157,14 @@ public class SmallJS {
 									state = 0;
 								}
 								else {
-									state = 7;
+									state = 4;
 									temp += ch;
 								}
 							}
 							break;
-						case 10:
+						case 5:
 							if(isDigit(ch)) {
-								state = 10;
+								state = 5;
 								temp += ch;
 							}
 							else if(isDelimiter(ch)) {
@@ -179,9 +176,9 @@ public class SmallJS {
 								delimiter = "";
 								state = 0;
 							}
+							else state = 12; // error state 
 							break;
-
-						case 13:
+						case 6:
 							if(isWhiteSpace(ch)) {
 								System.out.println(operator + " " + operatorsMap.get(operator));
 								operator = "";
@@ -191,7 +188,7 @@ public class SmallJS {
 								System.out.println(operator + " " + operatorsMap.get(operator));
 								operator = "";
 								temp = ch;
-								state = 10;
+								state = 5;
 							}
 							else if(isLetterOrDot(ch)) {
 								System.out.println(operator + " " + operatorsMap.get(operator));
@@ -205,9 +202,9 @@ public class SmallJS {
 								operator = "";
 								state = 0;
 							}
+							else state = 12; // error state 
 							break;
-
-						case 16:
+						case 7:
 							if(ch.equals("\"")) {
 								temp += ch;
 								System.out.println(temp + "  literal");
@@ -216,28 +213,26 @@ public class SmallJS {
 							}
 							else {
 								if(ch.equals("<")) {
-									tag = ch; // save newly
-									state = 17;
+									tag = ch; 
+									state = 8;
 								}
 								else {
-									state = 16;
+									state = 7;
 									temp += ch;
 								}
-								
 							}
-							// 19 error 못 가게 함 
 							break;
-						case 17:
+						case 8:
 							if(ch.equals(">")) {
 								tag += ch;
-								state = 18;
+								state = 9;
 							}
 							else {
 								tag += ch;
-								state = 17;
+								state = 8;
 							}
 							break;
-						case 18:
+						case 9:
 							if(!tagPrintFlag) {
 								System.out.println(tag + " " + keywordsMap.get(tag));
 								tag = "";
@@ -246,60 +241,49 @@ public class SmallJS {
 								state = 0;
 							}
 							else if(ch.equals("<")) {
-								System.out.println(temp + "\"" + " literal"); // 함수 인자일때는 ("ㅇㅇ" 이렇게 출력될텐데.. 앞에서 ( 이거 붙여주는걸 뺄까...
+								System.out.println(temp + "\"" + " literal");
 								temp = "";
 								tag = ch;
-								state = 20;
+								state = 10;
 								tagPrintFlag = false;
 							}
-							else { // !ch.equals("<")
+							else { 
 								tagPrintFlag = true;
 								temp += ch;
-								state = 18;
+								state = 9;
 							}
 							break;
-						case 20:
+						case 10:
 							if(ch.equals("/")) {
 								tag += ch;
-								state = 21;
+								state = 11;
 							}
-							// else error state
+							else state = 12; // error state 
 							break;
-						case 21:
+						case 11:
 							if(ch.equals(">")) {
 								tag += ch;
-								state = 18;
+								state = 9;
 							}
 							else {
 								tag += ch;
-								state = 21;
+								state = 11;
 							}
 							break;
-						case 19:
-							state = 19;
+						case 12: 
+							state = 12;
 							System.out.println("error state!");
 							break;
-
 					} 
-				
 				}
-				
-				// state2만 따로 처리 해주기 
 				if(state == 2) {
-					// print comment
 					System.out.println(temp + " comment");
-					temp = ""; 
 				}
-				// keyword 뒤에 delimiter 없을 때 (test1.jss의 14번째 줄 같이...)
 				if(state == 3) {
 					System.out.println(temp + " " + keywordsMap.get(temp));
-					temp = ""; 
 				}
-				
-
 			} 
 		}
-
 	}
 
 	void initailizeMap() { 
@@ -332,7 +316,6 @@ public class SmallJS {
 		keywordsMap.put("</ol>", "keyword tag name");
 		keywordsMap.put("<br/>", "keyword tag name");
 		
-		
 		delimitersMap.put(" ", "null");
 		delimitersMap.put("(", "null"); 
 		delimitersMap.put(")", "null");
@@ -355,82 +338,52 @@ public class SmallJS {
 	}
 
 	boolean isNoFunctionName(String c) {
-		if(!isFunctionName(c)) {
-			return true;
-		}
+		if(!isFunctionName(c)) return true;
 		else return false;
 	}
 	
 	boolean isFunctionName(String c) {
-		if(c.equals("window.prompt")||c.equals("parseFloat")||c.equals("document.write")||c.equals("document.writeln")) {
-//		if(Pattern.matches("window.prompt|parseFloat|document.write|document.writeln",c)) {
-			return true;
-		}
+		if(c.equals("window.prompt")||c.equals("parseFloat")||c.equals("document.write")||c.equals("document.writeln")) return true;
 		else return false;
 	}
 	
 	boolean isNoKeyword(String c) {
-		if(!isKeyword(c)) {
-			return true;
-		}
+		if(!isKeyword(c)) return true;
 		else return false;
 	}
 	
 	boolean isKeyword(String c) {
-		if(c.equals("var")||c.equals("window.prompt")||c.equals("parseFloat")||c.equals("while")||c.equals("if")||c.equals("else")||c.equals("document.write")||c.equals("document.writeln")||c.equals("for")||c.equals("switch")||c.equals("case")||c.equals("break")||c.equals("default")||c.equals("do")||c.equals("false")||c.equals("function")||c.equals("return")) {
-//		if(Pattern.matches("var|window.prompt|parseFloat|while|if|else|document.write|document.writeln|for|switch|case|break|default|do|false|function|return",c)) {
-			return true;
-		}
+		if(c.equals("var")||c.equals("window.prompt")||c.equals("parseFloat")||c.equals("while")||c.equals("if")||c.equals("else")||c.equals("document.write")||c.equals("document.writeln")||c.equals("for")||c.equals("switch")||c.equals("case")||c.equals("break")||c.equals("default")||c.equals("do")||c.equals("false")||c.equals("function")||c.equals("return")) return true;
 		else return false;
 	}
 	
 	boolean isDelimiter(String c) {
-		if(c.equals(" ")||c.equals(";")||c.equals(",")||c.equals("(")||c.equals(")")||c.equals("{")||c.equals("}")||c.equals(":")) {
-//		if(Pattern.matches("\\s|;|,|\\(|\\)|\\{|\\}|:",c)) {
-			return true;
-		}
+		if(c.equals(" ")||c.equals(";")||c.equals(",")||c.equals("(")||c.equals(")")||c.equals("{")||c.equals("}")||c.equals(":")) return true;
 		else return false;
 	}
 	
-	
 	boolean isSecondOp(String c) {
-		if(c.equals("=")||c.equals("+")) {
-//		if(Pattern.matches("=|\\+",c)) {
-			return true;
-		}
+		if(c.equals("=")||c.equals("+")) return true;
 		else return false;
 	}
 	
 	boolean isFirstOp(String c) {
-		if(c.equals("<")||c.equals(">")||c.equals("=")||c.equals("+")||c.equals("*")) {
-//		if(Pattern.matches("<|>|=|\\+|\\*",c)) {
-			return true;
-		}
+		if(c.equals("<")||c.equals(">")||c.equals("=")||c.equals("+")||c.equals("*")) return true;
 		else return false;
 	}
 	
 	boolean isLetterOrDot(String c) {
-		if(Character.isLetter(c.charAt(0)) || c.equals(".")) {
-		//if(Pattern.matches("[a-zA-Z]|\\.",c)) {
-			return true;
-		}
+		if(Character.isLetter(c.charAt(0)) || c.equals(".")) return true;
 		else return false;
 	}
 	
 	boolean isDigit(String c) {
-		if(Character.isDigit(c.charAt(0))) {
-		//if(Pattern.matches("[0-9]",c)) {
-			return true;
-		}
+		if(Character.isDigit(c.charAt(0))) return true;
 		else return false;
 	}
 	
 	boolean isWhiteSpace(String c) {
-		if(Character.isWhitespace(c.charAt(0))) {
-//		if(Pattern.matches("\\s",c)) {
-			return true;
-		}
+		if(Character.isWhitespace(c.charAt(0))) return true;
 		else return false;
 	}	
-
 }
