@@ -1,6 +1,6 @@
 <script_start>
-  // initialization
-  var passes = 0, // number of passes
+  // initialiation
+  var passes=1, // number of passes
   student = 1, // student counter
   result;
   var number, sum = 0;
@@ -51,6 +51,6 @@
 
   function square(y)
   {
-    return y * y;
+    return y*y;
   }
 <script_end>
