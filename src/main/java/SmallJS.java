@@ -58,10 +58,7 @@ public class SmallJS {
 					ch = String.valueOf(line.charAt(j));
 					switch(state){
 						case 0:
-							if(isWhiteSpace(ch)) {
-								state = 0;
-							}
-							else if(ch.equals("/")) {
+							if(ch.equals("/")) {
 								state = 1;
 								temp = ch;
 							}
@@ -179,7 +176,7 @@ public class SmallJS {
 							else state = 12; // error state 
 							break;
 						case 6:
-							if(isWhiteSpace(ch)) {
+							if(isDelimiter(ch)) {
 								System.out.println(operator + " " + operatorsMap.get(operator));
 								operator = "";
 								state = 0;
@@ -379,11 +376,6 @@ public class SmallJS {
 	
 	boolean isDigit(String c) {
 		if(Character.isDigit(c.charAt(0))) return true;
-		else return false;
-	}
-	
-	boolean isWhiteSpace(String c) {
-		if(Character.isWhitespace(c.charAt(0))) return true;
 		else return false;
 	}	
 }
