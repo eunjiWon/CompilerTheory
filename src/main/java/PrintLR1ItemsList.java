@@ -1,28 +1,19 @@
 import java.util.ArrayList;
 
 public class PrintLR1ItemsList {
-	static String[] LATokenList = {
-			"$"
-	};
 	public static void main(String[] args) {
 		AutoRuleGenerator autoRuleGenerator = new AutoRuleGenerator();
 		autoRuleGenerator.makeRuleList();
 		ArrayList<ArrayList<String>> BNFSplitToTokenList = new ArrayList<ArrayList<String>>();
 		BNFSplitToTokenList = autoRuleGenerator.getBNFList();
-//		autoRuleGenerator.printRuleList(BNFSplitToTokenList);
+		autoRuleGenerator.printRuleList(BNFSplitToTokenList);
 		MakeFollowSetList makeFollowSetList = new MakeFollowSetList();
 		makeFollowSetList.makefollowSetToTokenList();
 		ArrayList<ArrayList<String>> FollowSetToTokenList = new ArrayList<ArrayList<String>>();
 		FollowSetToTokenList = makeFollowSetList.getfollowSetToTokenList();
-//		makeFollowSetList.printRuleList(FollowSetToTokenList);
+		makeFollowSetList.printRuleList(FollowSetToTokenList);
 
-		
-		for(ArrayList<String> each_followset : FollowSetToTokenList) {
-			for(String followToken : each_followset) {
-//				System.out.println(followToken);
-				
-			}
-		}
+	
 		
 		// Add period (.) 
 		for(int a = 0; a < BNFSplitToTokenList.size(); a++) {

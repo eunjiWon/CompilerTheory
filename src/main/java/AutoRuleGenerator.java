@@ -17,7 +17,7 @@ public class AutoRuleGenerator {
 			"If-stmt -> if ( Exp ) { Stmt-sequence } Else-part",
 			"Else-part -> else { Stmt-sequence }",
 			"Else-part -> epsilon",
-			"Assign-stmt -> id Assign-stmt",
+			"Assign-stmt -> id Assign-stmt'",
 			"Assign-stmt' -> = Exp ;",
 			"Assign-stmt' -> Double-op ;",
 			"Exp -> Simple-exp Exp'",
