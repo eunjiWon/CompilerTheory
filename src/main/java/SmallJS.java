@@ -15,7 +15,6 @@ public class SmallJS {
 		// initialize keywordsMap, delimitersMap, operatorsMap 
 		smallJS.initailizeMap();
 		smallJS.run(args[0]);
-		
 	}
 
 	public void run(String filePath) throws Exception {
@@ -379,3 +378,4 @@ public class SmallJS {
 		else return false;
 	}	
 }
+
